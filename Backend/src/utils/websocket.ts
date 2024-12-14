@@ -1,6 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
-let db: any[] = [];
 let wss: WebSocketServer;
 
 export const createWebSocket = (server: any) => {
