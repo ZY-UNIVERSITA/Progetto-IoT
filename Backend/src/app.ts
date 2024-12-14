@@ -4,6 +4,7 @@ import path from "path";
 import { connectionToWebSocket, createWebSocket } from "./utils/websocket";
 import { connectToBroker } from "./utils/broker";
 import sendDataRouter from "./routes/send-data-router"
+import sensorRouter from "./routes/sensor-route"
 
 // parsing metodo post
 // import bodyParser from "body-parser"
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
 
 // Middleware per l'utilizzo dei router
+app.use(sensorRouter);
 app.use(sendDataRouter);
 
 connectToBroker();
