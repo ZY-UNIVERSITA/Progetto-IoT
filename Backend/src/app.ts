@@ -3,11 +3,9 @@ import mqtt, { MqttClient } from "mqtt";
 import path from "path";
 import { connectionToWebSocket, createWebSocket } from "./utils/websocket";
 import { connectToBroker } from "./utils/broker";
-import sendDataRouter from "./routes/send-data-router"
+import sendDataRouter from "./routes/sendDataToSensor-router"
 import sensorRouter from "./routes/sensor-route"
-
-// parsing metodo post
-// import bodyParser from "body-parser"
+import bodyParser from "body-parser"
 
 
 // Configurazione dell'applicazione Express
@@ -21,7 +19,7 @@ app.use(express.static("dist-frontend"));
 
 // Middleware per il parsing del body delle richieste
 app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
+app.use(bodyParser.json());
 
 // Middleware per l'utilizzo dei router
 app.use(sensorRouter);
