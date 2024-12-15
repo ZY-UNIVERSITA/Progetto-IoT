@@ -1,5 +1,5 @@
 # Progetto-IoT
-Per installare le dipendenze per il server, eseguire il comando:
+Per installare le dipendenze per il server, eseguire il comando nella directory 'Backend':
 ```node
 npm run install
 ```
