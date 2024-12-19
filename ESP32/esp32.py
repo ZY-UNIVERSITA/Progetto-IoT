@@ -2,9 +2,29 @@
 import network
 import time
 
+# Libreria per connettersi al server MQTT
+from umqtt.simple import MQTTClient
+
 # Libreria per connettersi ai pin e usare il sensore dht
 import dht
 import machine
+
+# Libreria per aggiornare la data
+import ntptime
+
+# Libreria di micropython per gestire i file json, simile alla libreria json di python
+import ujson
+
+# Liberia json di python, è meno efficiente da usare ujson è progettato per i sistemi embedded dove c'è l'orientamento all'efficienza
+# import json 
+
+# MQTT Server Parameters
+MQTT_CLIENT_ID = "progetto-iot-rile-temp-hum"
+MQTT_BROKER_SERVER_URL = "broker.mqttdashboard.com"
+MQTT_USERNAME = ""
+MQTT_PASSWORD = ""
+MQTT_TOPIC_PUBLISHER = "sensori-server"
+MQTT_TOPIC_SUBSCRIBER = "server-sensori"
 
 # Associazione sensori ai pin
 sensorPins = [ 15, 32 ]
@@ -21,3 +41,81 @@ while not sta_if.isconnected():
   print(".", end="")
   time.sleep(0.1)
 print(" Connected!")
+
+# Dalla documentazione umqtt.simple per connettersi al server MQTT
+# Connessione al server MQTT
+print("Connessione al server MQTT in corso...", end="")
+# Creazione dell'oggetto MQTTClient
+MQTTclient = MQTTClient(MQTT_CLIENT_ID, MQTT_BROKER_SERVER_URL, user=MQTT_USERNAME, password=MQTT_PASSWORD)
+# Connessione al server MQTT
+MQTTclient.connect()
+if MQTTclient:
+  print("Tutto ok. Connesso.")
+else:
+  print("Errore nella connessione.")
+
+limits = []
+
+for i in range(len(sensorPins)):
+  limits.append({
+    "sensor": i,
+    "temp": 25,
+    "hum": 15
+  })
+
+# Impostazioni come subscriber
+def onMessage(topic, msg):
+  # byte -> string 
+  messages = msg.decode()
+
+  print(f"Dal topic: {topic} ci sono i seguenti comandi: ", end="")
+
+  for message in messages:
+    print(f"Sensor: {message.sensor}, temp: {message.temp}, hum: {message.hum}", end="")
+    updateLimit(message)
+
+# Aggiorna i limiti
+def updateLimit(message):
+  for limit in limits:
+    if limit.sensor == message.sensor:
+      limit.temp = message.temp
+      limit.hum = message.hum
+      break
+
+# Quando c'è un messaggio viene richiamata questa funzione
+MQTTclient.set_callback(onMessage)
+
+# Impostazioni come publisher
+MQTTclient.subscribe(MQTT_TOPIC_SUBSCRIBER)
+
+# Aggiornare la data dell'ESP32
+ntptime.settime()
+
+while True:
+  print(f"I {len(sensors)} sensori ha rilevato i valori: ", end="")
+
+  # Controlla i messaggi
+  MQTTclient.check_msg()
+
+  # Manda i dati al server MQTT
+  i = 0
+  for sensor in sensors:
+    sensor.measure()
+    
+    sensorMessage = {
+        "sensor": i,
+        "temp": sensor.temperature(),
+        "humidity": sensor.humidity(),
+        "timestamp":  time.gmtime(time.time())
+    }
+
+    message = ujson.dumps(sensorMessage)
+
+    MQTTclient.publish(MQTT_TOPIC_PUBLISHER, message)
+
+    print(sensorMessage)
+
+    i+=1
+
+  # Esegue la lettura ogni 5 secondi
+  time.sleep(5)
