@@ -66,13 +66,19 @@ for i in range(len(sensorPins)):
 # Impostazioni come subscriber
 def onMessage(topic, msg):
   # byte -> string 
-  messages = msg.decode()
-
-  print(f"Dal topic: {topic} ci sono i seguenti comandi: ", end="")
-
-  for message in messages:
+  try:
+    messages = ujson.loads(msg.decode())
     print(f"Sensor: {message.sensor}, temp: {message.temp}, hum: {message.hum}", end="")
-    updateLimit(message)
+
+    if isinstance(messages, list):
+      for message in messages:
+        updateLimit(message)
+    
+    elif isinstance(messages, dict):
+      updateLimit(message)
+
+  except Exception as e:
+    print("Errore nel parsing del messaggio: ", e)
 
 # Aggiorna i limiti
 def updateLimit(message):
