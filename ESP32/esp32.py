@@ -81,6 +81,9 @@ def updateLimit(message):
     limits[sen_id]["hum"] = message.get("temp", limits[sen_id]["hum"])
     print(f"Aggiornati limiti per sensore {sen_id}: {limits[sen_id]}")
 
+def get_formatted_time():
+  return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime())
+
 # Quando c'è un messaggio viene richiamata questa funzione
 MQTTclient.set_callback(onMessage)
 
@@ -105,7 +108,7 @@ while True:
         "sensor": i,
         "temp": sensor.temperature(),
         "humidity": sensor.humidity(),
-        "timestamp":  time.gmtime(time.time())
+        "timestamp":  get_formatted_time()
     }
 
     message = ujson.dumps(sensorMessage)
