@@ -54,14 +54,7 @@ if MQTTclient:
 else:
   print("Errore nella connessione.")
 
-limits = []
-
-for i in range(len(sensorPins)):
-  limits.append({
-    "sensor": i,
-    "temp": 25,
-    "hum": 15
-  })
+limits = {i: {"temp": 25, "hum": 15} for i in range(len(sensorPins))}
 
 # Impostazioni come subscriber
 def onMessage(topic, msg):
@@ -82,11 +75,11 @@ def onMessage(topic, msg):
 
 # Aggiorna i limiti
 def updateLimit(message):
-  for limit in limits:
-    if limit.sensor == message.sensor:
-      limit.temp = message.temp
-      limit.hum = message.hum
-      break
+  sen_id = message.get("sensor")
+  if sen_id in limits:
+    limits[sen_id]["temp"] = message.get("temp", limits[sen_id]["temp"])
+    limits[sen_id]["hum"] = message.get("temp", limits[sen_id]["hum"])
+    print(f"Aggiornati limiti per sensore {sen_id}: {limits[sen_id]}")
 
 # Quando c'è un messaggio viene richiamata questa funzione
 MQTTclient.set_callback(onMessage)
