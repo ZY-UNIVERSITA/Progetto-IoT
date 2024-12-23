@@ -6,18 +6,20 @@
     <div class="sensor-data">
       <div v-for="sensor in sensors" :key="sensor.id" class="sensor">
         <h3>Sensor {{ sensor.id }}</h3>
-        <p>Temperature: {{ sensor.temp }}°C</p>
-        <p>Humidity: {{ sensor.humidity }}%</p>
+        <p>Temperature: {{ sensor.temperatura }}°C</p>
+        <p>Humidity: {{ sensor.umidita }}%</p>
+        <p>Timestamp: {{ sensor.timestamp }}</p>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { Sensor } from "../utils/types";
 export default {
   data() {
     return {
-      sensors: [],
+      sensors: [] as Sensor [],
     };
   },
   methods: {
