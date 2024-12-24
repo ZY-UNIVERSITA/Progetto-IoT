@@ -3,7 +3,7 @@ import mqtt, { MqttClient } from "mqtt";
 import path from "path";
 import { connectionToWebSocket, createWebSocket } from "./utils/websocket";
 import { connectToBroker } from "./utils/broker";
-import sendDataRouter from "./routes/sendDataToSensor-router"
+import sendDataRouter from "./routes/send-data-to-sensor-router"
 import sensorRouter from "./routes/sensor-route"
 import bodyParser from "body-parser"
 

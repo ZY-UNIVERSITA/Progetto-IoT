@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as sendDataController from "../controllers/send-data-to-sensor";
+import * as sendDataController from "../controllers/send-data-to-sensor-controller";
 
 const router: Router = Router();
 
