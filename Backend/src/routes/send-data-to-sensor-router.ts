@@ -3,7 +3,7 @@ import * as sendDataController from "../controllers/send-data-to-sensor-controll
 
 const router: Router = Router();
 
-router.post("/api/modifier/limit", sendDataController.modify_limit)
+router.post("/api/modifier/limit/:sensor_id", sendDataController.modify_limit)
 router.get("/api/modifier/test", sendDataController.modify_lim)
 
 export default router;
