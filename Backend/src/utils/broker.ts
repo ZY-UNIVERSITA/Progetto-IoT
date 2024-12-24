@@ -5,7 +5,13 @@ import connection from "./db";
 
 // Configurazione del broker MQTT
 const BROKER_URL: string = 'mqtt://broker.hivemq.com';
-export const TOPIC_NAMES: string[] = [ 'sensori-server', 'server-sensori' ];
+export enum TOPIC_NAMES {
+    ESP32_TO_SERVER = "sensors_to_server",
+    ESP32_TO_SERVER_EMERGENCY = "sensors_to_server_emergency",
+    SERVER_TO_ESP32 = "server_to_sensor",
+}
+
+// export const TOPIC_NAMES: string[] = [ 'sensors_to_server', 'server_to_sensor', 'sensors_to_server_emergency' ];
 const MAX_RETRIES: number = 10;
 
 export let connectionAttempts: BrokerConnectionAttempts;
@@ -56,7 +62,8 @@ const handleConnectionError = (connectionAttempts: BrokerConnectionAttempts) => 
 
 // Funzione che gestisce la sottoscrizione al topic
 const subscribeToTopic = (): void => {
-    subscribe(TOPIC_NAMES[0]);
+    subscribe(TOPIC_NAMES.ESP32_TO_SERVER);
+    subscribe(TOPIC_NAMES.ESP32_TO_SERVER_EMERGENCY);
 }
 
 // Funzione di sottoscrizione al topic
@@ -91,25 +98,31 @@ const handleSubscriptionError = (connectionAttempts: BrokerConnectionAttempts) =
 
 // Funzione che gestisce la ricezione di nuovi dati dal topic a cui è sottoscritto
 const handleMessage = (receivedTopic: string, message: Buffer) => {
-    // gestisce la possibilità di sottoscriversi a piu topic
-    if (receivedTopic === TOPIC_NAMES[0]) {
-        try {
-            const data = JSON.parse(message.toString());
+    const data = JSON.parse(message.toString());
 
+    // gestisce la possibilità di sottoscriversi a piu topic
+    if (receivedTopic === TOPIC_NAMES.ESP32_TO_SERVER) {
+        try {
             const sensorData: SensorData = new SensorData(data);
 
-            executeDB(sensorData);
+            insert_sensors_data_into_DB(sensorData);
 
             sendDataToClients(data);
-        } catch (e) {
+        } catch (e: any) {
             console.error('Errore nel parsing del messaggio JSON:', e);
+        }
+    } else if (receivedTopic === TOPIC_NAMES.ESP32_TO_SERVER_EMERGENCY) {
+        try {
+            
+        } catch (e: any) {
+            console.error("Errore nel parsing del messaggio JSON:", e);
         }
     }
 };
 
 
 // Funzione di gestione dell'inserimento dei dati all'interno del db
-const executeDB = (sensorData: SensorData) => {
+const insert_sensors_data_into_DB = (sensorData: SensorData) => {
     console.log("il sensore che sta inviando dati è: " + sensorData.getSensor());
 
     connection.execute(
