@@ -18,13 +18,14 @@ import ujson
 # Liberia json di python, è meno efficiente da usare ujson è progettato per i sistemi embedded dove c'è l'orientamento all'efficienza
 # import json 
 
-# MQTT Server Parameters
+# Parametri del server MQTT
 MQTT_CLIENT_ID = "progetto-iot-rile-temp-hum"
 MQTT_BROKER_SERVER_URL = "broker.mqttdashboard.com"
 MQTT_USERNAME = ""
 MQTT_PASSWORD = ""
-MQTT_TOPIC_PUBLISHER = "sensori-server"
-MQTT_TOPIC_SUBSCRIBER = "server-sensori"
+MQTT_TOPIC_PUBLISHER_NORMAL = "sensors_to_server"
+MQTT_TOPIC_PUBLISHER_EMERGENCY = "sensors_to_server_emergency"
+MQTT_TOPIC_SUBSCRIBER = "server_to_sensor"
 
 # Associazione sensori ai pin
 sensorPins = [ 15, 32 ]
@@ -54,20 +55,22 @@ if MQTTclient:
 else:
   print("Errore nella connessione.")
 
-limits = {i: {"temp": 25, "hum": 15} for i in range(len(sensorPins))}
+# Limiti di umidità classici
+sensor_limits = {i: {"temp": 25, "hum": 15} for i in range(len(sensorPins))}
 
 # Impostazioni come subscriber
 def onMessage(topic, msg):
   # byte -> string 
   try:
-    messages = ujson.loads(msg.decode())
-    print(f"Sensor: {message.sensor}, temp: {message.temp}, hum: {message.hum}", end="")
-
-    if isinstance(messages, list):
-      for message in messages:
-        updateLimit(message)
+    # Decodifica il messaggio da byte in string
+    messagesString = msg.decode()
     
-    elif isinstance(messages, dict):
+    # Trasforma la stringa in un oggetto json
+    messages = ujson.loads(messagesString)
+
+    # Permette di accettare l'invio di più limiti in una volta
+    for message in messages:
+      print(f"Sensor: {message["sensor"]}, temp: {message["temp"]}, hum: {message["hum"]}", end="\n")
       updateLimit(message)
 
   except Exception as e:
@@ -75,11 +78,11 @@ def onMessage(topic, msg):
 
 # Aggiorna i limiti
 def updateLimit(message):
-  sen_id = message.get("sensor")
-  if sen_id in limits:
-    limits[sen_id]["temp"] = message.get("temp", limits[sen_id]["temp"])
-    limits[sen_id]["hum"] = message.get("temp", limits[sen_id]["hum"])
-    print(f"Aggiornati limiti per sensore {sen_id}: {limits[sen_id]}")
+  sensor_id = message.get("sensor")
+  if sensor_id in sensor_limits:
+    sensor_limits[sensor_id]["temp"] = message.get("temp", sensor_limits[sensor_id]["temp"])
+    sensor_limits[sensor_id]["hum"] = message.get("temp", sensor_limits[sensor_id]["hum"])
+    print(f"Aggiornati limiti per sensore {sensor_id}: {sensor_limits[sensor_id]}")
 
 # Quando c'è un messaggio viene richiamata questa funzione
 MQTTclient.set_callback(onMessage)
@@ -91,9 +94,8 @@ MQTTclient.subscribe(MQTT_TOPIC_SUBSCRIBER)
 ntptime.settime()
 
 while True:
-  print(f"I {len(sensors)} sensori ha rilevato i valori: ", end="")
-
-  # Controlla i messaggi
+  # Controlla eventuali messaggi di aggiornamenot dei messaggi che arrivano dal frontend
+  print(f"I {len(sensors)} sensori hanno rilevato i seguenti valori: ", end="\n")
   MQTTclient.check_msg()
 
   # Manda i dati al server MQTT
@@ -104,17 +106,35 @@ while True:
     sensorMessage = {
         "sensor": i,
         "temp": sensor.temperature(),
-        "humidity": sensor.humidity(),
+        "hum": sensor.humidity(),
         "timestamp":  time.gmtime(time.time())
     }
 
     message = ujson.dumps(sensorMessage)
 
-    MQTTclient.publish(MQTT_TOPIC_PUBLISHER, message)
+    MQTTclient.publish(MQTT_TOPIC_PUBLISHER_NORMAL, message)
 
     print(sensorMessage)
 
+    # Controlla se i valori rilevati sono nei limiti
+    if sensorMessage["temp"] > sensor_limits[i]["temp"]:
+      MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
+        "sensor": i,
+        "temp": sensor.temperature(),
+        "temp_limit": sensor_limits[i]["temp"]
+      }))
+      print("Temperatura troppo elevata.")
+
+    if sensorMessage["hum"] > sensor_limits[i]["hum"]:
+      MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
+        "sensor": i,
+        "hum": sensor.humidity(),
+        "hum_limit": sensor_limits[i]["hum"]
+      }))
+      print("Umidità troppo elevata.")
+
     i+=1
 
-  # Esegue la lettura ogni 5 secondi
-  time.sleep(5)
+  # Esegue la lettura ogni 1.5 perchè il sensore fornisce un input ogni 2 secondi. Con 1.5 si è sicuri di ottenere tutti i valori
+  time.sleep(1.5)
+
