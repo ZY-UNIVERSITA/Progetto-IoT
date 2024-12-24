@@ -3,8 +3,11 @@ import { connectionAttempts, TOPIC_NAMES } from "../utils/broker";
 import connection from "../utils/db";
 
 export const modify_limit = (req: Request, res: Response) => {
-    const { limits } = req.body; // Recupera l'array 'limits' dal corpo della richiesta
-    console.log("Valore limite ricevuto:", limits); // Stampa il valore ricevuto per conferma
+    // Recupera l'array 'limits' dal corpo della richiesta
+    const { limits } = req.body; 
+
+    // Stampa il valore ricevuto per conferma
+    console.log("Valore limite ricevuto:", limits); 
     
     connectionAttempts.getClient().publish(TOPIC_NAMES.SERVER_TO_ESP32, JSON.stringify(limits));
     res.status(200).send("ok");
