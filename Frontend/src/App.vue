@@ -2,67 +2,28 @@
   <div id="app">
     <header>
       <h1>IoT Monitor</h1>
+      <nav>
+        <router-link to="/">Dashboard</router-link>
+        <router-link to="/history">History</router-link>
+        <router-link to="/config">Configuration</router-link>
+      </nav>
     </header>
-    <div class="sensor-data">
-      <div v-for="sensor in sensors" :key="sensor.id" class="sensor">
-        <h3>Sensor {{ sensor.id }}</h3>
-        <p>Temperature: {{ sensor.temperatura }}°C</p>
-        <p>Humidity: {{ sensor.umidita }}%</p>
-        <p>Timestamp: {{ sensor.timestamp }}</p>
-      </div>
-    </div>
+    <router-view/>
   </div>
 </template>
 
-<script lang="ts">
-import type { Sensor } from "../utils/types";
-export default {
-  data() {
-    return {
-      sensors: [] as Sensor [],
-    };
-  },
-  methods: {
-    fetchSensorData() {
-      fetch('/api/getAllSensors')
-        .then((response) => response.json())
-        .then((data) => {
-          this.sensors = data;
-        })
-        .catch((error) => {
-          console.error('Errore nel recupero dei dati:', error);
-        });
-    },
-  },
-  mounted() {
-    this.fetchSensorData();
-    setInterval(this.fetchSensorData, 5000); // Aggiorna i dati ogni 5 secondi
-  },
-};
-</script>
-
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f0f0f0;
-}
-header {
-  color: black;
-  padding: 10px;
-  text-align: center;
-}
-.sensor-data {
+nav {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  gap: 15px;
+  background: #f8f8f8;
+  padding: 10px;
 }
-.sensor {
-  background: white;
-  padding: 20px;
-  margin: 10px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+router-link {
+  text-decoration: none;
+  color: #000;
+}
+router-link:hover {
+  text-decoration: underline;
 }
 </style>
