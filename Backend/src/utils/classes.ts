@@ -39,13 +39,13 @@ export class BrokerConnectionAttempts {
 export class SensorData {
     private sensor: number;
     private temp: number;
-    private humidity: number;
+    private hum: number;
     private timestamp: number[];
     
     public constructor(data: any) {
         this.sensor = data.sensor;
         this.temp = data.temp;
-        this.humidity = data.humidity;
+        this.hum = data.hum;
         this.timestamp = data.timestamp;
     }
 
@@ -58,7 +58,7 @@ export class SensorData {
     }
 
     public getHumidity(): number {
-        return this.humidity;
+        return this.hum;
     }
 
     public getTimestamp(): Date {
