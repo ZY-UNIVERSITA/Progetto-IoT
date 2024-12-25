@@ -11,19 +11,3 @@
     <router-view/>
   </div>
 </template>
-
-<style>
-nav {
-  display: flex;
-  gap: 15px;
-  background: #f8f8f8;
-  padding: 10px;
-}
-router-link {
-  text-decoration: none;
-  color: #000;
-}
-router-link:hover {
-  text-decoration: underline;
-}
-</style>

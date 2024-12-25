@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: black;
+  background-color: #d3d3d3;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,14 +25,33 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  flex-direction: column;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #d3d3d3;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  top: 10px;
+}
+
+.navbar {
+  top: 120px;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.navbar a {
+  padding: 14px 20px;
+  text-decoration: none;
+  display: inline-block;
+  margin: 0 10px;
 }
 
 button {
@@ -46,11 +65,12 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
-button:focus,
-button:focus-visible {
+
+button:focus, button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
