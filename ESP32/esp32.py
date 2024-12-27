@@ -121,7 +121,8 @@ while True:
       MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
         "sensor": i,
         "temp": sensor.temperature(),
-        "temp_limit": sensor_limits[i]["temp"]
+        "temp_limit": sensor_limits[i]["temp"],
+        "timestamp": time.gmtime(time.time())
       }))
       print("Temperatura troppo elevata.")
 
@@ -129,7 +130,8 @@ while True:
       MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
         "sensor": i,
         "hum": sensor.humidity(),
-        "hum_limit": sensor_limits[i]["hum"]
+        "hum_limit": sensor_limits[i]["hum"],
+        "timestamp": time.gmtime(time.time())
       }))
       print("Umidità troppo elevata.")
 
