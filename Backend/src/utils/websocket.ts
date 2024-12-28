@@ -18,7 +18,7 @@ export const sendDataToClients = (data: any) => {
 export const connectionToWebSocket = () => {
     wss.on('connection', (ws: WebSocket) => {
         console.log('New client connected');
-        ws.send('Welcome to the WebSocket server!');
+        // ws.send('Welcome to the WebSocket server!');
         
         ws.on('message', (message: string) => {
             console.log(`Received message: ${message}`);

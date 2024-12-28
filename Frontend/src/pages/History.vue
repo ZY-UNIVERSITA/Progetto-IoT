@@ -19,6 +19,9 @@ export default defineComponent({
       try {
         const response = await fetch(`/api/sensor/${sensorId}`);
         const data = await response.json();
+
+        console.log(data);
+
         chartData.value = {
           labels: data.timestamp,
           temperature: data.temperatura,

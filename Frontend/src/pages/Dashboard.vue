@@ -13,8 +13,10 @@ export default defineComponent({
       const response = await fetch("/api/getAllSensors");
       const data = await response.json();
       
+      console.log(data);
+
       sensors.value = data.map((sensor: Sensor) => ({
-        id: sensor.nome,
+        id: sensor.id,
         position: sensor.posizione,
         installationDate: sensor.data_installazione,
       }));
@@ -41,10 +43,10 @@ export default defineComponent({
     <h2>Sensors Dashboard</h2>
     <div class="sensor-list">
       <div v-for="sensor in sensors" class="sensor-card">
-        <h3>Sensor ID: {{ sensor.nome }}</h3>
-        <p>Position: {{ sensor.posizione }}</p>
-        <p>Installation Date: {{ sensor.data_installazione }}</p>
-        <button @click="goToHistory(sensor.nome)">View History</button>
+        <h3>Sensor ID: {{ sensor.id }}</h3>
+        <p>Position: {{ sensor.position }}</p>
+        <p>Installation Date: {{ sensor.installationDate }}</p>
+        <button @click="goToHistory(sensor.id)">View History</button>
       </div>
     </div>
   </div>

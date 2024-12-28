@@ -8,7 +8,7 @@ export const getAllSensors = async (req: Request, res: Response): Promise<void> 
         FROM sensori as s`,
         [],
         function (err, results) {
-            console.log("non va bene");
+            console.log("Va tutto bene. I dati generali del sensori sono stati inviati.");
             res.json(results);
         }
     )
@@ -18,12 +18,15 @@ export const getAllSensors = async (req: Request, res: Response): Promise<void> 
 export const getSensor = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
+    console.log(id);
+    
     connection.execute(
         `SELECT s.id, l.temperatura, l.umidita, l.timestamp
         FROM sensori as s JOIN letture as l ON (s.id = l.sensore_id)
-        WHERE s.id LIKE ?`,
+        WHERE s.id = ?`,
         [id],
         function (err, results) {
+            console.log(results)
             res.json(results);
         }
     )
