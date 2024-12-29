@@ -55,7 +55,7 @@ if MQTTclient:
 else:
   print("Errore nella connessione.")
 
-# Limiti di umidità classici
+# Limiti di umidità di default
 sensor_limits = {i: {"temp": 25, "hum": 15} for i in range(len(sensorPins))}
 
 # Impostazioni come subscriber
@@ -90,13 +90,15 @@ MQTTclient.set_callback(onMessage)
 # Impostazioni come publisher
 MQTTclient.subscribe(MQTT_TOPIC_SUBSCRIBER)
 
-# Aggiornare la data dell'ESP32
+# Aggiorna la data dell'ESP32
 ntptime.settime()
 
 while True:
   # Controlla eventuali messaggi di aggiornamenot dei messaggi che arrivano dal frontend
-  print(f"I {len(sensors)} sensori hanno rilevato i seguenti valori: ", end="\n")
   MQTTclient.check_msg()
+
+  # Legge i dati che arrivano dai sensori
+  print(f"I {len(sensors)} sensori hanno rilevato i seguenti valori: ", end="\n")
 
   # Manda i dati al server MQTT
   i = 0
@@ -114,9 +116,22 @@ while True:
 
     MQTTclient.publish(MQTT_TOPIC_PUBLISHER_NORMAL, message)
 
-    print(sensorMessage)
+    # print(sensorMessage)
 
     # Controlla se i valori rilevati sono nei limiti
+    limit_to_control = [ "temp", "hum" ]
+
+    for limit in limit_to_control:
+      if sensorMessage[limit] > sensor_limits[i][limit]:
+        MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
+          "sensor": i,
+          limit: sensor.temperature() if limit == "temp" else sensor.humidity(),
+          f"{limit}_limit": sensor_limits[i][limit],
+          "timestamp": time.gmtime(time.time())
+        }))
+
+      print(f"{limit} troppo elevata.")
+
     if sensorMessage["temp"] > sensor_limits[i]["temp"]:
       MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
         "sensor": i,
@@ -133,6 +148,7 @@ while True:
         "hum_limit": sensor_limits[i]["hum"],
         "timestamp": time.gmtime(time.time())
       }))
+
       print("Umidità troppo elevata.")
 
     i+=1
