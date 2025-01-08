@@ -4,6 +4,7 @@ export class BrokerConnectionAttempts {
     private connectionAttempts: number;
     private subscriptionAttempts: number;
     private client: any;
+    private listenerStatus: boolean;
 
     public getConnectionAttempts(): number {
         return this.connectionAttempts;
@@ -29,10 +30,19 @@ export class BrokerConnectionAttempts {
         this.subscriptionAttempts++;
     }
 
+    public setListenererStatus(): void {
+        this.listenerStatus = true;
+    }
+
+    public getListenerStatus(): boolean {
+        return this.listenerStatus;
+    }
+
     public constructor() {
         this.connectionAttempts = 0;
         this.subscriptionAttempts = 0;
         this.client = null;
+        this.listenerStatus = false;
     }
 }
 

@@ -80,12 +80,16 @@ const subscribe = (topic_name: string): void => {
             handleSubscriptionError(connectionAttempts);
         } else {
             console.log("Sottoscrizione ok al topic: " + topic_name);
-            
-            // richiama l'handler che gestisce l'arrivo dei messaggi
-            connectionAttempts.getClient().on('message', handleMessage);
+            if (!connectionAttempts.getListenerStatus()) {
+                // richiama l'handler che gestisce l'arrivo dei messaggi
+                connectionAttempts.getClient().on('message', handleMessage);
+
+                connectionAttempts.setListenererStatus();
+            }
         }
     });
 };
+
 
 // riprova a sottoscriversi fino a 10 volte ogni 5 secondi
 const handleSubscriptionError = (connectionAttempts: BrokerConnectionAttempts) => {
