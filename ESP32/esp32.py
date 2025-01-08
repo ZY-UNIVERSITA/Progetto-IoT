@@ -116,40 +116,25 @@ while True:
 
     MQTTclient.publish(MQTT_TOPIC_PUBLISHER_NORMAL, message)
 
-    # print(sensorMessage)
+    print(sensorMessage)
 
     # Controlla se i valori rilevati sono nei limiti
     limit_to_control = [ "temp", "hum" ]
 
     for limit in limit_to_control:
       if sensorMessage[limit] > sensor_limits[i][limit]:
-        MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
+        print(sensorMessage[limit], sensor_limits[i][limit])
+
+        sensorOverLimit = {
           "sensor": i,
-          limit: sensor.temperature() if limit == "temp" else sensor.humidity(),
+          "limit": sensor.temperature() if limit == "temp" else sensor.humidity(),
           f"{limit}_limit": sensor_limits[i][limit],
           "timestamp": time.gmtime(time.time())
-        }))
+        }
 
-      print(f"{limit} troppo elevata.")
+        print(sensorOverLimit)
 
-    if sensorMessage["temp"] > sensor_limits[i]["temp"]:
-      MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
-        "sensor": i,
-        "temp": sensor.temperature(),
-        "temp_limit": sensor_limits[i]["temp"],
-        "timestamp": time.gmtime(time.time())
-      }))
-      print("Temperatura troppo elevata.")
-
-    if sensorMessage["hum"] > sensor_limits[i]["hum"]:
-      MQTTClient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, ujson.dumps({
-        "sensor": i,
-        "hum": sensor.humidity(),
-        "hum_limit": sensor_limits[i]["hum"],
-        "timestamp": time.gmtime(time.time())
-      }))
-
-      print("Umidità troppo elevata.")
+        print(f"{limit} troppo elevata.")
 
     i+=1
 
