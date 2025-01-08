@@ -1,7 +1,9 @@
 <script lang="ts">
   import { defineComponent, onMounted, watch } from "vue";
-  import { Chart } from "chart.js";
+  import { Chart, registerables } from 'chart.js'; 
   import type { ChartConfiguration } from "chart.js";
+  
+  Chart.register(...registerables);
   
   export default defineComponent({
     name: "HistoryChart",
@@ -28,7 +30,7 @@
   
       const createChart = () => {
         const ctx = (document.getElementById("historyChart") as HTMLCanvasElement)?.getContext("2d");
-  
+
         if (ctx) {
           const config: ChartConfiguration = {
             type: "line",
@@ -102,3 +104,10 @@
       <canvas id="historyChart"></canvas>
     </div>
 </template>
+
+<style lang="css" scoped>
+  canvas#historyChart {
+    width: 1500px;
+    height: 1000px;
+  }
+</style>

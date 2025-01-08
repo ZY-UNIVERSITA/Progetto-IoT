@@ -22,11 +22,13 @@ export default defineComponent({
 
         console.log(data);
 
-        chartData.value = {
-          labels: data.timestamp,
-          temperature: data.temperatura,
-          humidity: data.umidita,
-        };
+        data.forEach(singleData => {
+          chartData.value.labels.push(singleData.timestamp);
+          chartData.value.temperature.push(singleData.temperatura);
+          chartData.value.humidity.push(singleData.umidita);
+        });
+
+        console.log(chartData.value);
       } catch (error) {
         console.error("Error fetching history data:", error);
       }
@@ -70,6 +72,6 @@ h2 {
 
 .chart-container {
   width: 100%;
-  height: 400px;
+  height: 1000px;
 }
 </style>
