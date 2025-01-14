@@ -6,6 +6,26 @@ USE `sensori_iot`;
 -- ------------------------------------------------------
 -- Server version	8.0.40
 
+-- Table structure for table `sensori`
+
+DROP TABLE IF EXISTS `sensori`;
+CREATE TABLE `sensori` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `posizione` varchar(255) DEFAULT NULL,
+  `data_installazione` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nome` (`nome`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping data for table `sensori`
+
+INSERT INTO `sensori` VALUES
+(0,'0','terrazza','2024-01-01 11:12:12'),
+(1,'1','camera','2024-01-01 11:12:12'),
+(2,'2','bagno','2024-12-14 12:08:40'),
+(3,'3','soggiorno','2024-12-14 12:08:40');
+
 -- Table structure for table `letture`
 
 DROP TABLE IF EXISTS `letture`;
@@ -19,44 +39,3 @@ CREATE TABLE `letture` (
   KEY `sensore_id` (`sensore_id`),
   CONSTRAINT `letture_ibfk_1` FOREIGN KEY (`sensore_id`) REFERENCES `sensori` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table `letture`
-
-LOCK TABLES `letture` WRITE;
-/*!40000 ALTER TABLE `letture` DISABLE KEYS */;
-/*!40000 ALTER TABLE `letture` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `sensori`
---
-
-DROP TABLE IF EXISTS `sensori`;
-CREATE TABLE `sensori` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `nome` varchar(255) NOT NULL,
-  `posizione` varchar(255) DEFAULT NULL,
-  `data_installazione` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `nome` (`nome`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `sensori`
---
-
-LOCK TABLES `sensori` WRITE;
-/*!40000 ALTER TABLE `sensori` DISABLE KEYS */;
-INSERT INTO `sensori` VALUES
-(0,'0','terrazza','2024-01-01 11:12:12'),
-(1,'1','camera','2024-01-01 11:12:12'),
-(2,'2','bagno','2024-12-14 12:08:40'),
-(3,'3','soggiorno','2024-12-14 12:08:40');
-/*!40000 ALTER TABLE `sensori` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping events for database 'sensori_iot'
---
-
--- Dumping routines for database 'sensori_iot'
