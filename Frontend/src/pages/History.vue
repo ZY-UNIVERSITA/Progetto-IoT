@@ -2,6 +2,7 @@
 import { defineComponent, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import HistoryChart from "../components/HistoryChart.vue";
+import type { Letture } from "../../utils/types";
 
 export default defineComponent({
   name: "History",
@@ -22,8 +23,8 @@ export default defineComponent({
 
         console.log(data);
 
-        data.forEach(singleData => {
-          chartData.value.labels.push(singleData.timestamp);
+        data.forEach((singleData: Letture) => {
+          chartData.value.labels.push(new Date(singleData.timestamp).toLocaleString()); // Converti la data in stringa leggibile
           chartData.value.temperature.push(singleData.temperatura);
           chartData.value.humidity.push(singleData.umidita);
         });
