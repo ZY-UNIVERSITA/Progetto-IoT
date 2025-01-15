@@ -132,6 +132,10 @@ while True:
           "timestamp": time.gmtime(time.time())
         }
 
+        message = ujson.dumps(sensorOverLimit)
+
+        MQTTclient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, message)
+
         print(sensorOverLimit)
 
         print(f"{limit} troppo elevata.")
