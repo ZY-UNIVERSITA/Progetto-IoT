@@ -106,8 +106,8 @@
 </template>
 
 <style lang="css" scoped>
-  canvas#historyChart {
-    width: 1500px;
-    height: 1000px;
+  canvas {
+    width: 2000px;
+    height: auto;
   }
 </style>
