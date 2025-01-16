@@ -50,7 +50,8 @@ export default defineComponent({
       console.log("Nuovo dato ricevuto dal WebSocket:", data);
 
       if (data.sensor === sensorId) {
-        const formattedTime = new Date(data.timestamp).toLocaleString('it-IT');
+        const formattedTime = new Date(Date.UTC(data.timestamp[0], data.timestamp[1]-1, data.timestamp[2], 
+        data.timestamp[3], data.timestamp[4], data.timestamp[5])).toLocaleString('it-IT');
 
         // Crea una copia profonda dell'oggetto chartData.value
         const newChartData = JSON.parse(JSON.stringify(chartData.value));
