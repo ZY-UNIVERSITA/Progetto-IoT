@@ -1,18 +1,14 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
 import type { Sensor } from "../../utils/types";
-import { initializeWebSocket } from "../../utils/websocket";
 
 export default defineComponent({
   setup() {
-    // Tipizza sensors come un array di oggetti di tipo Sensor
     const sensors = ref<Sensor[]>([]);
 
-    // Funzione per recuperare i sensori
     const fetchSensors = async () => {
       const response = await fetch("/api/getAllSensors");
       const data = await response.json();
-      
       console.log(data);
 
       sensors.value = data.map((sensor: Sensor) => ({
@@ -27,9 +23,6 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      initializeWebSocket((data: any) => {
-        console.log("Real-time data received:", data);
-      });
       fetchSensors();
     });
 
