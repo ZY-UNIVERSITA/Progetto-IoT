@@ -55,23 +55,16 @@
             },
             options: {
               responsive: true,
+              animation: false,
               plugins: {
-                legend: {
-                  position: "top",
-                },
+                legend: { position: "top" },
               },
               scales: {
                 x: {
-                  title: {
-                    display: true,
-                    text: "Time",
-                  },
+                  title: { display: true, text: "Time" },
                 },
                 y: {
-                  title: {
-                    display: true,
-                    text: "Values",
-                  },
+                  title: { display: true, text: "Values" },
                 },
               },
             },
@@ -84,23 +77,27 @@
       onMounted(() => {
         createChart();
       });
-  
+
       watch(
-        () => [props.labels, props.temperatureData, props.humidityData],
+        () => [props.labels.length, props.temperatureData.length, props.humidityData.length],
         () => {
           if (chartInstance) {
-            chartInstance.destroy();
-            createChart();
+            // Aggiorna solo se i dati sono cambiati effettivamente
+            chartInstance.data.labels = props.labels;
+            chartInstance.data.datasets[0].data = props.temperatureData;
+            chartInstance.data.datasets[1].data = props.humidityData;
+            chartInstance.update();
           }
         }
       );
+
+      return {};
     },
   });
 </script>
 
 <template>
     <div class="chart-container">
-      <h3>Sensor ID: {{ sensorId }}</h3>
       <canvas id="historyChart"></canvas>
     </div>
 </template>

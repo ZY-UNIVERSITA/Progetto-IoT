@@ -1,23 +1,3 @@
-<script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
-import { initializeWebSocket } from "../utils/websocket";
-
-export default defineComponent({
-  setup() {
-    const sensorData = ref<any>(null);
-
-    onMounted(() => {
-      initializeWebSocket((data) => {
-        sensorData.value = data;
-        console.log("Dati ricevuti dal WebSocket:", data);
-      });
-    });
-
-    return { sensorData };
-  },
-});
-</script>
-
 <template>
   <div id="app">
     <header>

@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import { initializeWebSocket } from "../../utils/websocket";
 import HistoryChart from "../components/HistoryChart.vue";
 import type { Letture } from "../../utils/types";
 
@@ -21,13 +22,11 @@ export default defineComponent({
         const response = await fetch(`/api/sensor/${sensorId}`);
         const data = await response.json();
 
-        console.log(data);
+        console.log("Dati storici caricati:", data);
 
-        data.forEach((singleData: Letture) => {
-          chartData.value.labels.push(new Date(singleData.timestamp).toLocaleString()); // Converti la data in stringa leggibile
-          chartData.value.temperature.push(singleData.temperatura);
-          chartData.value.humidity.push(singleData.umidita);
-        });
+        chartData.value.labels = data.map((entry: Letture) => new Date(entry.timestamp).toLocaleString());
+        chartData.value.temperature = data.map((entry: Letture) => entry.temperatura);
+        chartData.value.humidity = data.map((entry: Letture) => entry.umidita);
 
         console.log(chartData.value);
       } catch (error) {
@@ -35,8 +34,35 @@ export default defineComponent({
       }
     };
 
+    // Funzione per aggiornare i dati in tempo reale
+    const updateChartData = (data: any) => {
+      console.log("Nuovo dato ricevuto dal WebSocket:", data);
+
+      if (data.sensor === sensorId) {
+        const formattedTime = new Date(data.timestamp).toLocaleString();
+
+        // Crea una copia profonda dell'oggetto chartData.value
+        const newChartData = JSON.parse(JSON.stringify(chartData.value));
+
+        newChartData.labels.push(formattedTime);
+        newChartData.temperature.push(data.temp);
+        newChartData.humidity.push(data.hum);
+
+        // Mantieni solo gli ultimi 20 dati per evitare sovraccarico
+        if (newChartData.labels.length > 20) {
+          newChartData.labels.shift();
+          newChartData.temperature.shift();
+          newChartData.humidity.shift();
+        }
+
+        // Assegna la nuova copia
+        chartData.value = newChartData;
+      }
+    };
+
     onMounted(() => {
-      fetchHistoryData();
+      fetchHistoryData(); // Carica i dati iniziali
+      initializeWebSocket(updateChartData); // Inizia l'ascolto del WebSocket
     });
 
     return { sensorId, chartData };
@@ -46,10 +72,10 @@ export default defineComponent({
 
 <template>
   <div class="history">
-    <h2>Sensor History</h2>
+    <h2>History of Sensor n° {{ sensorId }} </h2>
     
     <HistoryChart
-      v-if="chartData && chartData.labels.length > 0"
+      v-if="chartData.labels.length > 0"
       :sensorId="sensorId"
       :labels="chartData.labels"
       :temperatureData="chartData.temperature"
