@@ -100,7 +100,7 @@ export default defineComponent({
 <style scoped>
 .history {
   padding: 20px;
-  max-width: 900px;
+  max-width: 2400px;
   margin: 0 auto;
 }
 
@@ -110,6 +110,6 @@ h2 {
 
 .chart-container {
   width: 100%;
-  height: 1000px;
+  height: auto;
 }
 </style>
