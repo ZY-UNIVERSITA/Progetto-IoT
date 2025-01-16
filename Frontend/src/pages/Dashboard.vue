@@ -13,9 +13,14 @@ export default defineComponent({
 
       sensors.value = data.map((sensor: Sensor) => ({
         id: sensor.id,
-        position: sensor.posizione,
-        installationDate: sensor.data_installazione,
+        nome: sensor.nome,
+        posizione: sensor.posizione,
+        data_installazione: sensor.data_installazione
       }));
+    };
+
+    const formatDate = (date: Date) => {
+      return new Date(date).toLocaleString('it-IT');
     };
 
     const goToHistory = (sensorId: number) => {
@@ -26,7 +31,7 @@ export default defineComponent({
       fetchSensors();
     });
 
-    return { sensors, goToHistory };
+    return { sensors, goToHistory, formatDate };
   },
 });
 </script>
@@ -37,8 +42,8 @@ export default defineComponent({
     <div class="sensor-list">
       <div v-for="sensor in sensors" class="sensor-card">
         <h3>Sensor ID: {{ sensor.id }}</h3>
-        <p>Position: {{ sensor.position }}</p>
-        <p>Installation Date: {{ sensor.installationDate }}</p>
+        <p>Position: {{ sensor.posizione }}</p>
+        <p>Installation Date: {{ formatDate(sensor.data_installazione) }}</p>
         <button @click="goToHistory(sensor.id)">View History</button>
       </div>
     </div>

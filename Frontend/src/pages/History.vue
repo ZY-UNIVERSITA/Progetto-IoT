@@ -24,7 +24,18 @@ export default defineComponent({
 
         console.log("Dati storici caricati:", data);
 
-        chartData.value.labels = data.map((entry: Letture) => new Date(entry.timestamp).toLocaleString());
+        chartData.value.labels = data.map((entry: Letture) => 
+          new Date(entry.timestamp).toLocaleString('it-IT', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          })
+        );
+
+        //chartData.value.labels = data.map((entry: Letture) => new Date(entry.timestamp).toLocaleString());
         chartData.value.temperature = data.map((entry: Letture) => entry.temperatura);
         chartData.value.humidity = data.map((entry: Letture) => entry.umidita);
 
@@ -39,7 +50,7 @@ export default defineComponent({
       console.log("Nuovo dato ricevuto dal WebSocket:", data);
 
       if (data.sensor === sensorId) {
-        const formattedTime = new Date(data.timestamp).toLocaleString();
+        const formattedTime = new Date(data.timestamp).toLocaleString('it-IT');
 
         // Crea una copia profonda dell'oggetto chartData.value
         const newChartData = JSON.parse(JSON.stringify(chartData.value));
@@ -49,7 +60,7 @@ export default defineComponent({
         newChartData.humidity.push(data.hum);
 
         // Mantieni solo gli ultimi 20 dati per evitare sovraccarico
-        if (newChartData.labels.length > 20) {
+        if (newChartData.labels.length > 10) {
           newChartData.labels.shift();
           newChartData.temperature.shift();
           newChartData.humidity.shift();
