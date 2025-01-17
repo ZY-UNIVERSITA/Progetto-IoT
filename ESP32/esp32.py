@@ -7,7 +7,7 @@ from umqtt.simple import MQTTClient
 
 # Libreria per connettersi ai pin e usare il sensore dht
 import dht
-import machine
+from machine import Pin, SoftI2C
 
 # Libreria per aggiornare la data
 import ntptime
@@ -17,6 +17,9 @@ import ujson
 
 # Liberia json di python, è meno efficiente da usare ujson è progettato per i sistemi embedded dove c'è l'orientamento all'efficienza
 # import json 
+
+# Libreria per usare lo schermo ssd1306
+import ssd1306
 
 # Parametri del server MQTT
 MQTT_CLIENT_ID = "progetto-iot-rile-temp-hum"
@@ -31,7 +34,11 @@ MQTT_TOPIC_SUBSCRIBER = "server_to_sensor"
 sensorPins = [ 15, 32 ]
 sensors = []
 for pin in sensorPins:
-  sensors.append(dht.DHT22(machine.Pin(pin)))
+  sensors.append(dht.DHT22(Pin(pin)))
+
+# Configurazione dello schermo SSD1306
+i2c = SoftI2C(sda=Pin(26), scl=Pin(27))
+display = ssd1306.SSD1306_I2C(128, 64, i2c)
 
 # Dalla documentazione di WOKWI per connettersi al wifi
 print("Connecting to WiFi", end="")
@@ -141,6 +148,10 @@ while True:
         print(f"{limit} troppo elevata.")
 
     i+=1
+
+  # Visualizzazione su schermo
+  display.text('Hello, World!', 0, 0, 1)
+  display.show()
 
   # Esegue la lettura ogni 1.5 perchè il sensore fornisce un input ogni 2 secondi. Con 1.5 si è sicuri di ottenere tutti i valori
   time.sleep(1.5)
