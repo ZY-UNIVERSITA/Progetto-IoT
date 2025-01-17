@@ -9,11 +9,16 @@ export const modify_limit = (req: Request, res: Response) => {
     // Stampa il valore ricevuto per conferma
     console.log("Valore limite ricevuto:", sensor_id, temp, hum); 
     
-    connectionAttempts.getClient().publish(TOPIC_NAMES.SERVER_TO_ESP32, JSON.stringify([{
-        "sensor": sensor_id,
-        "temp": temp,
-        "hum": hum
-    }]));
+    // Assicurati che il messaggio MQTT sia nel formato corretto
+    const message = JSON.stringify([
+        {
+            sensor: parseInt(sensor_id),
+            temp: parseFloat(temp),
+            hum: parseFloat(hum)
+        }
+    ]);
+
+    connectionAttempts.getClient().publish(TOPIC_NAMES.SERVER_TO_ESP32, message);
     res.status(200).send("ok");
 }
 
