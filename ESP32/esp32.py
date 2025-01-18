@@ -107,6 +107,12 @@ while True:
   # Legge i dati che arrivano dai sensori
   print(f"I {len(sensors)} sensori hanno rilevato i seguenti valori: ", end="\n")
 
+  # Resetta il display ssd1306
+  display.fill(0)
+  
+  # riga di separazione tra i valori dei 2 sensori
+  display.hline(0, 30, 128, 1)
+
   # Manda i dati al server MQTT
   i = 0
   for sensor in sensors:
@@ -124,6 +130,13 @@ while True:
     MQTTclient.publish(MQTT_TOPIC_PUBLISHER_NORMAL, message)
 
     print(sensorMessage)
+
+    # Scrivi sullo schermo lasciando dello spazio
+    y_position = 35 * i
+    display.text(f'Sensor: {i + 1}', 0, y_position, 1)
+    display.text(f'Temp: {sensorMessage["temp"]}', 0, y_position + 10, 1)
+    display.text(f'Hum: {sensorMessage["hum"]}', 0, y_position + 20, 1)
+
 
     # Controlla se i valori rilevati sono nei limiti
     limit_to_control = [ "temp", "hum" ]
@@ -150,7 +163,6 @@ while True:
     i+=1
 
   # Visualizzazione su schermo
-  display.text('Hello, World!', 0, 0, 1)
   display.show()
 
   # Esegue la lettura ogni 1.5 perchè il sensore fornisce un input ogni 2 secondi. Con 1.5 si è sicuri di ottenere tutti i valori

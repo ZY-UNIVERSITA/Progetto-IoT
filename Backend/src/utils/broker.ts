@@ -117,7 +117,9 @@ const handleMessage = (receivedTopic: string, message: Buffer) => {
         }
     } else if (receivedTopic === TOPIC_NAMES.ESP32_TO_SERVER_EMERGENCY) {
         try {
-            
+            console.log(data);
+
+            sendDataToClients(data);
         } catch (e: any) {
             console.error("Errore nel parsing del messaggio JSON:", e);
         }
