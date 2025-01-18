@@ -7,7 +7,8 @@ from umqtt.simple import MQTTClient
 
 # Libreria per connettersi ai pin e usare il sensore dht
 import dht
-from machine import Pin, SoftI2C
+from machine import Pin
+from machine import SoftI2C
 
 # Libreria per aggiornare la data
 import ntptime
@@ -39,6 +40,10 @@ for pin in sensorPins:
 # Configurazione dello schermo SSD1306
 i2c = SoftI2C(sda=Pin(26), scl=Pin(27))
 display = ssd1306.SSD1306_I2C(128, 64, i2c)
+
+# Configurazione led
+led1 = Pin(23, Pin.OUT)
+
 
 # Dalla documentazione di WOKWI per connettersi al wifi
 print("Connecting to WiFi", end="")
@@ -113,6 +118,7 @@ while True:
   # riga di separazione tra i valori dei 2 sensori
   display.hline(0, 30, 128, 1)
 
+
   # Manda i dati al server MQTT
   i = 0
   for sensor in sensors:
@@ -133,7 +139,7 @@ while True:
 
     # Scrivi sullo schermo lasciando dello spazio
     y_position = 35 * i
-    display.text(f'Sensor: {i + 1}', 0, y_position, 1)
+    display.text(f'Sensor: {i}', 0, y_position, 1)
     display.text(f'Temp: {sensorMessage["temp"]}', 0, y_position + 10, 1)
     display.text(f'Hum: {sensorMessage["hum"]}', 0, y_position + 20, 1)
 
@@ -143,11 +149,14 @@ while True:
 
     for limit in limit_to_control:
       if sensorMessage[limit] > sensor_limits[i][limit]:
+        if i == 0:
+          led1.on()
+
         print(sensorMessage[limit], sensor_limits[i][limit])
 
         sensorOverLimit = {
           "sensor": i,
-          "limit": sensor.temperature() if limit == "temp" else sensor.humidity(),
+          "misured_value": sensor.temperature() if limit == "temp" else sensor.humidity(),
           f"{limit}_limit": sensor_limits[i][limit],
           "timestamp": time.gmtime(time.time())
         }
