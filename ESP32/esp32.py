@@ -32,17 +32,23 @@ MQTT_TOPIC_PUBLISHER_EMERGENCY = "sensors_to_server_emergency"
 MQTT_TOPIC_SUBSCRIBER = "server_to_sensor"
 
 # Associazione sensori ai pin
-sensorPins = [ 15, 32 ]
+sensorPins = [ 13, 12 ]
 sensors = []
 for pin in sensorPins:
   sensors.append(dht.DHT22(Pin(pin)))
 
 # Configurazione dello schermo SSD1306
-i2c = SoftI2C(sda=Pin(26), scl=Pin(27))
+i2c = SoftI2C(sda=Pin(22), scl=Pin(23))
 display = ssd1306.SSD1306_I2C(128, 64, i2c)
 
-# Configurazione led
-led1 = Pin(23, Pin.OUT)
+# Configurazione led per temp (giallo) e umidità (bianco)
+ledPins = [ [26, 25 ], [14, 27] ]
+leds = []
+for pins in ledPins:
+  temp_leds = []
+  for pin in pins:
+    temp_leds.append(Pin(pin, Pin.OUT))
+  leds.append(temp_leds)
 
 
 # Dalla documentazione di WOKWI per connettersi al wifi
@@ -118,7 +124,6 @@ while True:
   # riga di separazione tra i valori dei 2 sensori
   display.hline(0, 30, 128, 1)
 
-
   # Manda i dati al server MQTT
   i = 0
   for sensor in sensors:
@@ -137,20 +142,23 @@ while True:
 
     print(sensorMessage)
 
-    # Scrivi sullo schermo lasciando dello spazio
+    # Scrivi sullo schermo lasciando dello spazio tra i valori valori
     y_position = 35 * i
     display.text(f'Sensor: {i}', 0, y_position, 1)
     display.text(f'Temp: {sensorMessage["temp"]}', 0, y_position + 10, 1)
     display.text(f'Hum: {sensorMessage["hum"]}', 0, y_position + 20, 1)
-
 
     # Controlla se i valori rilevati sono nei limiti
     limit_to_control = [ "temp", "hum" ]
 
     for limit in limit_to_control:
       if sensorMessage[limit] > sensor_limits[i][limit]:
-        if i == 0:
-          led1.on()
+
+        # Accensione led per temp/umidità elevata
+        if limit == "temp":
+          leds[i][0].on()
+        else:
+          leds[i][1].on()
 
         print(sensorMessage[limit], sensor_limits[i][limit])
 
@@ -163,12 +171,16 @@ while True:
 
         message = ujson.dumps(sensorOverLimit)
 
+        # Invia notifica al frontend se i limiti vengono superati
         MQTTclient.publish(MQTT_TOPIC_PUBLISHER_EMERGENCY, message)
 
         print(sensorOverLimit)
 
         print(f"{limit} troppo elevata.")
-
+      else:
+        # Spegni led se i valori sono entro i limiti
+        leds[i][0].off()
+        leds[i][1].off()
     i+=1
 
   # Visualizzazione su schermo
